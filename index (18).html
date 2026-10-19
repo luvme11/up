@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HTML 구동 확인</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{
+    --bg:#e8ebe9; --surface:#f6f7f5; --surface2:#dde1de; --line:#c3c9c5;
+    --text:#161a18; --muted:#5b6560; --accent:#1d3fd8;
+    --ok:#0f7a4a; --warn:#a86300; --bad:#c42b2b;
+    --ok-fill:#0f7a4a; --warn-fill:#b86e00; --bad-fill:#c42b2b;
+    --code-bg:#131715; --code-text:#d6ddd8; --code-mute:#7f8a84;
+    --r:4px;
+  }
+  [data-theme="dark"]{
+    --bg:#0e1110; --surface:#161a18; --surface2:#1f2422; --line:#303835;
+    --text:#e8ede9; --muted:#8f9a94; --accent:#8da4ff;
+    --ok:#4fd397; --warn:#f0b24a; --bad:#ff8080;
+    --ok-fill:#17855a; --warn-fill:#a8650a; --bad-fill:#b8403f;
+    --code-bg:#0a0c0b; --code-text:#d6ddd8;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--text); font-size:14px; line-height:1.6; min-height:100vh;
+    font-family:"Pretendard",-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent)}
+  button,input,textarea{font-family:inherit}
+  :focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+  .wrap{max-width:1320px; margin:0 auto; padding:0 24px}
+
+  /* ---------- Top bar ---------- */
+  header.top{position:sticky; top:0; z-index:20; background:var(--surface); border-bottom:1px solid var(--line)}
+  .topin{max-width:1320px; margin:0 auto; padding:0 24px; height:52px; display:flex; align-items:center; justify-content:space-between}
+  .logo{font-weight:800; font-size:16px; letter-spacing:-.02em}
+  .navr{display:flex; align-items:center; gap:22px}
+  .navr a{color:var(--muted); text-decoration:none; font-size:14px; font-weight:600}
+  .navr a:hover{color:var(--text)}
+  .theme{border:1px solid var(--line); background:transparent; color:var(--text); border-radius:var(--r); padding:4px 11px; font-size:13px; font-weight:600; cursor:pointer}
+  .theme:hover{background:var(--surface2)}
+
+  /* ---------- Intro ---------- */
+  .intro{padding:30px 0 20px}
+  .intro h1{margin:0 0 6px; font-size:24px; line-height:1.3; letter-spacing:-.03em; font-weight:800}
+  .intro p{margin:0; max-width:620px; color:var(--muted); font-size:14.5px}
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; cursor:pointer; white-space:nowrap;
+    border:1px solid var(--line); background:var(--surface); color:var(--text);
+    padding:8px 14px; border-radius:var(--r); font-size:13.5px; font-weight:600; text-decoration:none;
+  }
+  .btn:hover{background:var(--surface2); border-color:var(--muted)}
+  .btn.primary{background:var(--text); color:var(--surface); border-color:var(--text)}
+  .btn.primary:hover{background:var(--accent); border-color:var(--accent); color:#fff}
+  .btn.small{padding:4px 10px; font-size:12.5px}
+  .btn.danger:hover{border-color:var(--bad); color:var(--bad); background:transparent}
+
+  /* ---------- Panels ---------- */
+  .panel{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); min-width:0}
+  .ph{display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:9px 14px; border-bottom:1px solid var(--line); min-height:46px}
+  .ph h2{margin:0; font-size:14px; font-weight:800; letter-spacing:-.01em}
+  .ph .sp{flex:1}
+  .ph .meta{font-size:12.5px; color:var(--muted); font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .pb{padding:14px}
+
+  /* ---------- Verdict ---------- */
+  .verdict{
+    display:flex; align-items:center; gap:16px; padding:16px 22px; margin-bottom:16px; border-radius:var(--r);
+    background:var(--surface2); color:var(--text); border:1px solid var(--line); transition:background-color .25s, color .25s;
+  }
+  .vicon{width:42px; height:42px; border-radius:50%; border:2px solid currentColor; display:grid; place-items:center; font-size:20px; font-weight:800; flex:none}
+  .vmain b{display:block; font-size:24px; line-height:1.25; letter-spacing:-.03em; font-weight:800}
+  .vmain small{font-size:13.5px; opacity:.8}
+  .counters{margin-left:auto; display:flex; gap:8px}
+  .counter{font-size:13px; font-weight:600; padding:3px 12px; border-radius:99px; border:1px solid currentColor; opacity:.6}
+  .counter.has{opacity:1; font-weight:800}
+  .verdict.ok{background:var(--ok-fill); color:#fff; border-color:transparent}
+  .verdict.warn{background:var(--warn-fill); color:#fff; border-color:transparent}
+  .verdict.bad{background:var(--bad-fill); color:#fff; border-color:transparent}
+
+  /* ---------- Workbench ---------- */
+  .bench{display:grid; grid-template-columns:minmax(340px,5fr) 7fr; gap:16px; align-items:start; scroll-margin-top:70px}
+  @media(max-width:960px){.bench{grid-template-columns:1fr}}
+
+  .chips{display:flex; gap:6px; flex-wrap:wrap}
+  .fld{display:block; font-size:13px; font-weight:700; margin:16px 0 6px}
+  .fld span{font-weight:400; color:var(--muted)}
+  input[type=text]{
+    width:100%; background:var(--bg); border:1px solid var(--line); color:var(--text);
+    border-radius:var(--r); padding:8px 11px; font-size:14px;
+  }
+  input[type=text]:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 30%,transparent)}
+
+  .editor{border-radius:var(--r); overflow:hidden; border:1px solid var(--line); background:var(--code-bg)}
+  textarea{
+    display:block; width:100%; height:360px; resize:vertical; border:0; background:transparent; color:var(--code-text); padding:14px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12.5px; line-height:1.65; white-space:pre; tab-size:2;
+  }
+  textarea:focus{outline:none}
+  .editor:focus-within{border-color:var(--accent)}
+  .editor.drag{border-color:var(--ok); box-shadow:0 0 0 2px color-mix(in srgb,var(--ok) 35%,transparent)}
+  .row{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:14px}
+  .hint{font-size:12.5px; color:var(--muted); margin-top:10px}
+
+  /* ---------- Preview ---------- */
+  .seg{display:inline-flex; border:1px solid var(--line); border-radius:var(--r); overflow:hidden}
+  .seg button{border:0; border-right:1px solid var(--line); background:transparent; color:var(--muted); padding:4px 12px; font-size:12.5px; font-weight:600; cursor:pointer}
+  .seg button:last-child{border-right:0}
+  .seg button:hover{color:var(--text)}
+  .seg button.on{background:var(--text); color:var(--surface)}
+  .stage{padding:16px; display:flex; justify-content:center; background:var(--surface2); border-radius:0 0 var(--r) var(--r)}
+  .frameWrap{width:100%; transition:width .2s; background:#fff; overflow:hidden; border:1px solid var(--line)}
+  .frameWrap.tablet,.frameWrap.phone{border:1px solid var(--text)}
+  iframe{display:block; width:100%; height:480px; border:0; background:#fff}
+
+  /* ---------- Results ---------- */
+  .results{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px}
+  @media(max-width:960px){.results{grid-template-columns:1fr}}
+  ul.checks{list-style:none; padding:0; margin:0}
+  ul.checks li{display:flex; gap:12px; padding:9px 14px; border-bottom:1px solid var(--line)}
+  ul.checks li:last-child{border-bottom:0}
+  .tag{flex:none; width:44px; text-align:center; font-size:11.5px; font-weight:700; padding:1px 0; border-radius:3px; height:21px; margin-top:1px; border:1px solid currentColor}
+  .tag.ok{color:var(--ok)} .tag.warn{color:var(--warn)} .tag.fail{color:var(--bad)} .tag.info{color:var(--muted)}
+  .checks .sub{display:block; color:var(--muted); font-size:12.5px; margin-top:1px}
+  .console{background:var(--code-bg); height:330px; overflow:auto; padding:8px 14px; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12.5px; border-radius:0 0 var(--r) var(--r)}
+  .console div{padding:3px 0; border-bottom:1px solid rgba(255,255,255,.07); word-break:break-all}
+  .console .error{color:#ff8f8f} .console .warn{color:#f5c76a} .console .info{color:#97b4ff} .console .load{color:#62e0c0} .console .log{color:#d6ddd8}
+  .console .empty{color:var(--code-mute); border:0}
+
+  /* ---------- Blocks ---------- */
+  .block{padding:56px 0 0; scroll-margin-top:52px}
+  .sechead{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:16px}
+  .sechead h2{margin:0; font-size:22px; letter-spacing:-.03em; font-weight:800}
+  .sechead p{margin:2px 0 0; color:var(--muted); font-size:14px}
+  .lib-tools{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+  .search{width:190px}
+  .drop{
+    border:1px dashed var(--muted); background:transparent; border-radius:var(--r);
+    padding:22px; text-align:center; cursor:pointer; margin-bottom:14px;
+  }
+  .drop:hover,.drop.drag{border-color:var(--accent); background:color-mix(in srgb,var(--accent) 7%,transparent)}
+  .drop b{display:block; font-size:15px} .drop span{color:var(--muted); font-size:13px}
+
+  /* 보관함 목록 */
+  .files{background:var(--surface); border:1px solid var(--line); border-radius:var(--r)}
+  .files:empty{display:none}
+  .file{display:grid; grid-template-columns:minmax(0,1fr) 96px auto; gap:14px; align-items:center; padding:12px 16px; border-bottom:1px solid var(--line)}
+  .file:last-child{border-bottom:0}
+  .file:hover{background:color-mix(in srgb,var(--surface2) 55%,transparent)}
+  .fmain b{display:block; font-size:14.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .fmain small{color:var(--muted); font-size:12.5px}
+  .st{justify-self:start; font-size:12.5px; font-weight:700; color:var(--muted)}
+  .st::before{content:""; display:inline-block; width:8px; height:8px; border-radius:50%; background:currentColor; margin-right:6px}
+  .st.ok{color:var(--ok)} .st.warn{color:var(--warn)} .st.bad{color:var(--bad)}
+  .file .acts{display:flex; gap:6px}
+  @media(max-width:720px){
+    .file{grid-template-columns:1fr auto}
+    .file .acts{grid-column:1/-1}
+  }
+  .empty-box{text-align:center; color:var(--muted); padding:28px}
+  .libinfo{font-size:12.5px; color:var(--muted); margin-top:12px; max-width:760px}
+
+  /* ---------- How to ---------- */
+  .steps{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:32px}
+  .how{border-top:2px solid var(--text); padding-top:12px; min-width:0}
+  .how h3{margin:0 0 6px; font-size:16px; letter-spacing:-.02em}
+  .how p,.how li{color:var(--muted); font-size:14px; margin:5px 0}
+  .how ol{padding-left:18px; margin:8px 0 0}
+  code.i{background:var(--surface2); padding:1px 6px; border-radius:3px; font-size:12.5px; color:var(--text); font-family:ui-monospace,Menlo,Consolas,monospace}
+  pre.cmd{background:var(--code-bg); border-radius:var(--r); padding:12px 14px; overflow:auto; font-size:12.5px; color:var(--code-text); margin:10px 0 0; font-family:ui-monospace,Menlo,Consolas,monospace}
+
+  footer{margin-top:64px; padding:20px 0 36px; border-top:1px solid var(--line); color:var(--muted); font-size:13px}
+  .toast{
+    position:fixed; left:50%; bottom:28px; transform:translateX(-50%) translateY(16px); background:var(--text); color:var(--surface);
+    padding:10px 20px; border-radius:var(--r); font-weight:600; font-size:14px; opacity:0; pointer-events:none; transition:.2s; z-index:60;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important; scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="topin">
+    <div class="logo">HTML 구동 확인</div>
+    <nav class="navr">
+      <a href="#check">확인하기</a><a href="#library">보관함</a><a href="#howto">구동 방법</a>
+      <button class="theme" id="theme" title="테마 전환">다크</button>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="intro">
+    <h1>HTML이 제대로 돌아가는지 확인하세요</h1>
+    <p>코드를 붙여넣거나 파일을 끌어다 놓으면 바로 실행하고 오류를 점검해요. 확인한 파일은 이 브라우저에 보관되고, 코드는 밖으로 전송되지 않아요.</p>
+  </div>
+
+  <div class="verdict" id="verdict">
+    <div class="vicon" id="vIcon">…</div>
+    <div class="vmain"><b id="vText">아직 확인 전</b><small id="vSmall">코드를 넣고 구동 확인을 눌러 주세요</small></div>
+    <div class="counters"><span class="counter e" id="cErr">오류 0</span><span class="counter w" id="cWarn">경고 0</span></div>
+  </div>
+
+  <div class="bench" id="check">
+    <div class="panel">
+      <div class="ph"><h2>코드 입력</h2><span class="sp"></span><span class="meta" id="winName">untitled.html</span></div>
+      <div class="pb">
+        <div class="chips">
+          <button class="btn small" data-sample="ok">정상 예제</button>
+          <button class="btn small" data-sample="clock">시계 예제</button>
+          <button class="btn small" data-sample="bad">오류 예제</button>
+          <label class="btn small" style="margin:0">파일 열기<input type="file" id="file" accept=".html,.htm,text/html" hidden></label>
+        </div>
+        <label class="fld" for="title">파일 이름</label>
+        <input type="text" id="title" placeholder="예: my-home">
+        <label class="fld" for="code">HTML 코드 <span>파일을 끌어다 놓아도 돼요</span></label>
+        <div class="editor" id="editor">
+          <textarea id="code" spellcheck="false" placeholder="&lt;!DOCTYPE html&gt; ... 전체 코드를 붙여넣으세요"></textarea>
+        </div>
+        <div class="row">
+          <button class="btn primary" id="run">구동 확인</button>
+          <button class="btn" id="save">보관함에 저장</button>
+          <button class="btn" id="dl">다운로드</button>
+        </div>
+        <div class="hint">Ctrl+Enter 로도 실행할 수 있어요.</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph">
+        <h2>실행 화면</h2>
+        <div class="seg" id="seg">
+          <button data-w="375" data-mode="phone">모바일</button>
+          <button data-w="768" data-mode="tablet">태블릿</button>
+          <button data-w="100%" data-mode="" class="on">PC</button>
+        </div>
+        <span class="sp"></span>
+        <button class="btn small" id="reload">새로고침</button>
+        <button class="btn small" id="openTab">새 탭으로 열기</button>
+      </div>
+      <div class="stage"><div class="frameWrap" id="fw">
+        <iframe id="frame" sandbox="allow-scripts allow-modals allow-forms allow-popups" title="미리보기"></iframe>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="results">
+    <div class="panel">
+      <div class="ph"><h2>구조 점검</h2></div>
+      <ul class="checks" id="checks"><li><span class="tag info">대기</span><span>구동 확인을 누르면 결과가 나와요.</span></li></ul>
+    </div>
+    <div class="panel">
+      <div class="ph"><h2>실행 콘솔</h2><span class="sp"></span><button class="btn small" id="clr">비우기</button></div>
+      <div class="console" id="console"><div class="empty">아직 로그가 없어요.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 보관함 -->
+<section class="block" id="library"><div class="wrap">
+  <div class="sechead">
+    <div>
+      <h2>보관함</h2>
+      <p>저장해 두고, 필요할 때 다시 확인하거나 HTML 파일로 내려받으세요.</p>
+    </div>
+    <div class="lib-tools">
+      <input type="text" class="search" id="search" placeholder="이름으로 검색">
+      <button class="btn small" id="exportAll">전체 백업</button>
+      <label class="btn small" style="margin:0">백업 가져오기<input type="file" id="importFile" accept=".json,application/json" hidden></label>
+    </div>
+  </div>
+  <div class="drop" id="drop">
+    <b>.html 파일을 여기에 끌어다 놓으면 바로 보관돼요</b>
+    <span>여러 개를 한꺼번에 올릴 수 있어요. 클릭해서 선택해도 됩니다.</span>
+    <input type="file" id="dropFile" accept=".html,.htm,text/html" multiple hidden>
+  </div>
+  <div class="files" id="files"></div>
+  <div class="libinfo" id="libinfo"></div>
+</div></section>
+
+<section class="block" id="howto"><div class="wrap">
+  <div class="sechead"><div><h2>구동 방법</h2><p>확인이 끝난 HTML은 아래 방법으로 실제로 구동할 수 있어요.</p></div></div>
+  <div class="steps">
+    <div class="how"><h3>더블클릭으로 열기</h3><p>다운로드한 <code class="i">.html</code> 파일을 더블클릭하면 브라우저에서 바로 실행돼요.</p></div>
+    <div class="how"><h3>로컬 서버로 열기</h3><p>VS Code의 Live Server를 쓰거나 터미널에서 실행하세요.</p>
+<pre class="cmd">python -m http.server 8000
+# http://localhost:8000</pre></div>
+    <div class="how"><h3>GitHub Pages로 공개</h3>
+      <ol><li>저장소에 <code class="i">index.html</code> 업로드</li><li>Settings → Pages → Branch <code class="i">main</code> / <code class="i">/(root)</code></li><li><code class="i">https://아이디.github.io/저장소/</code> 접속</li></ol></div>
+  </div>
+</div></section>
+
+<div class="wrap"><footer>HTML 구동 확인 · 단일 파일로 동작해요</footer></div>
+<div class="toast" id="toast"></div>
+
+<script>
+var $ = function(id){ return document.getElementById(id); };
+
+/* ================= 테마 ================= */
+(function(){
+  var saved = null; try { saved = localStorage.getItem('htmlRunCheck.theme'); } catch(e){}
+  var dark = saved ? saved === 'dark' : (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+  function apply(){ document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light'); $('theme').textContent = dark ? '라이트' : '다크'; }
+  apply();
+  $('theme').onclick = function(){ dark = !dark; apply(); try{ localStorage.setItem('htmlRunCheck.theme', dark?'dark':'light'); }catch(e){} };
+})();
+
+/* ================= 저장소 (IndexedDB, 실패 시 localStorage) ================= */
+var DB = (function(){
+  var idb = null, useLS = false, LS_KEY = 'htmlRunCheck.files.v2';
+  function open(){
+    return new Promise(function(res){
+      if (!window.indexedDB){ useLS = true; res(); return; }
+      try {
+        var rq = indexedDB.open('htmlRunCheck', 1);
+        rq.onupgradeneeded = function(){ rq.result.createObjectStore('files', {keyPath:'id'}); };
+        rq.onsuccess = function(){ idb = rq.result; res(); };
+        rq.onerror = function(){ useLS = true; res(); };
+      } catch(e){ useLS = true; res(); }
+    });
+  }
+  function lsAll(){ try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch(e){ return []; } }
+  function all(){
+    return new Promise(function(res){
+      if (useLS){ res(lsAll()); return; }
+      var r = idb.transaction('files').objectStore('files').getAll();
+      r.onsuccess = function(){ res(r.result || []); }; r.onerror = function(){ res([]); };
+    });
+  }
+  function put(rec){
+    return new Promise(function(res, rej){
+      if (useLS){ try { var a = lsAll().filter(function(x){return x.id!==rec.id}); a.push(rec); localStorage.setItem(LS_KEY, JSON.stringify(a)); res(); } catch(e){ rej(e); } return; }
+      var tx = idb.transaction('files','readwrite'); tx.objectStore('files').put(rec);
+      tx.oncomplete = function(){ res(); }; tx.onerror = tx.onabort = function(){ rej(tx.error); };
+    });
+  }
+  function del(id){
+    return new Promise(function(res, rej){
+      if (useLS){ try { localStorage.setItem(LS_KEY, JSON.stringify(lsAll().filter(function(x){return x.id!==id}))); res(); } catch(e){ rej(e); } return; }
+      var tx = idb.transaction('files','readwrite'); tx.objectStore('files').delete(id);
+      tx.oncomplete = function(){ res(); }; tx.onerror = tx.onabort = function(){ rej(tx.error); };
+    });
+  }
+  return {open:open, all:all, put:put, del:del, mode:function(){ return useLS ? 'localStorage' : 'IndexedDB'; }};
+})();
+
+/* ================= 샘플 ================= */
+var SAMPLES = {
+  ok: ['<!DOCTYPE html>','<html lang="ko">','<head>','<meta charset="UTF-8">','<meta name="viewport" content="width=device-width, initial-scale=1">','<title>정상 예제</title>',
+    '<style>body{font-family:sans-serif;background:#f4f6fb;margin:0;padding:24px;color:#222}.box{max-width:420px;margin:0 auto;background:#fff;border-radius:16px;padding:22px;box-shadow:0 8px 24px rgba(0,0,0,.08)}#n{font-size:48px;font-weight:800;text-align:center}.row{display:flex;gap:8px;justify-content:center}button{border:0;background:#4f6df5;color:#fff;padding:9px 16px;border-radius:10px;font-size:15px;cursor:pointer}</style>',
+    '</head>','<body>','<div class="box"><h2>카운터</h2><div id="n">0</div>','<div class="row"><button onclick="add(-1)">-1</button><button onclick="add(1)">+1</button></div></div>',
+    '<script>','var c=0;','function add(d){c+=d;document.getElementById("n").textContent=c;console.log("count =",c);}','console.info("페이지 준비 완료");','<\/script>','</body>','</html>'].join('\n'),
+  clock: ['<!DOCTYPE html>','<html lang="ko">','<head>','<meta charset="UTF-8">','<meta name="viewport" content="width=device-width, initial-scale=1">','<title>시계</title>',
+    '<style>body{margin:0;min-height:100vh;display:grid;place-items:center;font-family:sans-serif;background:#0e1325;color:#eaf0ff}#t{font-size:clamp(40px,12vw,80px);font-weight:800;font-variant-numeric:tabular-nums}</style>',
+    '</head>','<body><div id="t">--:--:--</div>','<script>','function p(n){return String(n).padStart(2,"0")}','function tick(){var d=new Date();document.getElementById("t").textContent=p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds())}','tick();setInterval(tick,1000);','<\/script>','</body>','</html>'].join('\n'),
+  bad: ['<html>','<head>','<title>오류 예제</title>','<link rel="stylesheet" href="style.css">','</head>','<body>','<h1>일부러 틀린 페이지</h1>','<img src="images/photo.png" alt="사진">','<button onclick="hello()">클릭</button>',
+    '<script>','console.warn("경고 로그 예시");','missingFunction();','<\/script>','</body>','</html>'].join('\n')
+};
+
+/* ================= 유틸 ================= */
+function toast(m){ var t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(function(){t.classList.remove('show')},2000); }
+function safeName(t){ return (t||'page').replace(/\.html?$/i,'').replace(/[\\/:*?"<>|\s]+/g,'-').replace(/^-+|-+$/g,'') || 'page'; }
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]}); }
+function saveBlob(name, text, type){
+  var url = URL.createObjectURL(new Blob([text],{type:type}));
+  var a = document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){URL.revokeObjectURL(url)},1000);
+}
+function downloadHtml(title, html){ saveBlob(safeName(title)+'.html', html, 'text/html;charset=utf-8'); }
+function kb(n){ return (n/1024).toFixed(1)+' KB'; }
+function byteSize(s){ return new Blob([s]).size; }
+
+/* ================= 실행 + 콘솔 수집 (구동 확인) ================= */
+var INJECT =
+'<script>(function(){var T="__TOKEN__";'+
+'function s(t,m){try{parent.postMessage({chk:T,type:t,msg:String(m)},"*")}catch(e){}}'+
+'window.addEventListener("error",function(e){if(e.target&&e.target!==window){s("error","리소스 로드 실패: "+(e.target.src||e.target.href||e.target.tagName))}else{s("error",e.message+(e.lineno?" (줄 "+e.lineno+")":""))}},true);'+
+'window.addEventListener("unhandledrejection",function(e){s("error","Promise 오류: "+((e.reason&&e.reason.message)||e.reason))});'+
+'["log","info","warn","error"].forEach(function(l){var o=console[l];console[l]=function(){var a=[].slice.call(arguments).map(function(x){try{return typeof x==="object"?JSON.stringify(x):String(x)}catch(z){return String(x)}}).join(" ");s(l,a);try{o.apply(console,arguments)}catch(z){}}});'+
+'window.addEventListener("load",function(){s("load","")});'+
+'})();<\/script>';
+
+function inject(html, tok){
+  var sc = INJECT.replace('__TOKEN__', tok);
+  if (/<head[^>]*>/i.test(html)) return html.replace(/<head[^>]*>/i, function(m){return m+sc});
+  if (/<html[^>]*>/i.test(html)) return html.replace(/<html[^>]*>/i, function(m){return m+sc});
+  if (/^\s*<!doctype[^>]*>/i.test(html)) return html.replace(/^\s*<!doctype[^>]*>/i, function(m){return m+sc});
+  return sc + html;
+}
+
+var run = {token:'', errors:0, warns:0, loaded:false, timer:null, ran:false, static:{fail:0,warn:0}};
+
+function logLine(type, msg){
+  var c = $('console'); var e = c.querySelector('.empty'); if (e) e.remove();
+  var d = document.createElement('div'); d.className = type;
+  var label = {error:'오류', warn:'경고', info:'정보', log:'로그', load:'✓'}[type] || type;
+  d.textContent = '['+label+'] ' + (msg || '페이지 로드 완료');
+  c.appendChild(d); c.scrollTop = c.scrollHeight;
+}
+function updateCounters(){
+  $('cErr').textContent = '오류 '+run.errors; $('cErr').classList.toggle('has', run.errors>0);
+  $('cWarn').textContent = '경고 '+run.warns; $('cWarn').classList.toggle('has', run.warns>0);
+}
+window.addEventListener('message', function(ev){
+  var d = ev.data;
+  if (!d || d.chk !== run.token || ev.source !== $('frame').contentWindow) return;
+  if (d.type === 'error') run.errors++;
+  if (d.type === 'warn') run.warns++;
+  if (d.type === 'load'){ run.loaded = true; clearTimeout(run.timer); setTimeout(verdict, 700); }
+  logLine(d.type, d.msg); updateCounters();
+  if (d.type === 'error') verdict();
+});
+
+function setVerdict(level, text, small){
+  $('verdict').className = 'verdict ' + level;
+  $('vIcon').textContent = {ok:'✓', warn:'!', bad:'✕'}[level] || '…';
+  $('vText').textContent = text; $('vSmall').textContent = small || '';
+}
+function currentVerdict(){
+  if (!run.ran) return {level:'idle', text:'미확인', small:''};
+  if (run.errors > 0) return {level:'bad', text:'오류 '+run.errors+'건', small:'콘솔을 확인해 주세요'};
+  if (!run.loaded) return {level:'warn', text:'확인 중…', small:'페이지 로드를 기다리는 중'};
+  var w = run.static.fail + run.static.warn;
+  if (w > 0) return {level:'warn', text:'구동 OK · 권장 '+w+'건', small:'오류 없이 실행됨'};
+  return {level:'ok', text:'정상 구동', small:'오류와 경고 없이 실행됨'};
+}
+function verdict(){ var r = currentVerdict(); setVerdict(r.level, r.text, r.small); }
+
+/* ================= 구조 점검 ================= */
+function staticCheck(html){
+  var out = [], fail = 0, warn = 0;
+  function add(lv, t, sub){ out.push({lv:lv,t:t,sub:sub}); if(lv==='fail')fail++; if(lv==='warn')warn++; }
+  if (!html.trim()){ add('fail','코드가 비어 있습니다'); run.static={fail:fail,warn:warn}; return out; }
+  var doc = new DOMParser().parseFromString(html, 'text/html');
+  /^\s*<!doctype html/i.test(html) ? add('ok','DOCTYPE 선언 있음') : add('warn','DOCTYPE 없음','첫 줄에 <!DOCTYPE html> 을 넣으면 화면이 표준 모드로 그려집니다.');
+  doc.documentElement.getAttribute('lang') ? add('ok','언어 설정(lang) 있음') : add('warn','<html lang="ko"> 설정 없음');
+  doc.querySelector('meta[charset]') ? add('ok','문자 인코딩(charset) 있음') : add('warn','<meta charset="UTF-8"> 없음','한글이 깨질 수 있습니다.');
+  doc.querySelector('meta[name="viewport"]') ? add('ok','모바일 viewport 설정 있음') : add('warn','viewport 메타 태그 없음','휴대폰에서 화면이 작게 보일 수 있습니다.');
+  (doc.title && doc.title.trim()) ? add('ok','제목(title): '+doc.title.trim()) : add('warn','<title> 없음');
+  var ext = [], rel = [], plain = [];
+  doc.querySelectorAll('script[src],link[href],img[src],iframe[src],source[src],video[src],audio[src]').forEach(function(el){
+    var u = el.getAttribute('src') || el.getAttribute('href') || '';
+    if (!u || /^(data:|blob:|about:|mailto:|tel:|#|javascript:)/i.test(u)) return;
+    if (/^http:\/\//i.test(u)) plain.push(u);
+    if (/^(https?:)?\/\//i.test(u)) ext.push(u); else rel.push(u);
+  });
+  if (rel.length) add('warn','상대 경로 파일 '+rel.length+'개: '+rel.slice(0,3).join(', ')+(rel.length>3?' …':''),
+    '이 화면(단일 코드 미리보기)에서는 불러올 수 없습니다. GitHub에 올릴 때 같은 폴더에 해당 파일도 함께 올리세요.');
+  if (ext.length) add('info','외부 주소 '+ext.length+'개 사용', '인터넷 연결이 있어야 정상 표시됩니다.');
+  if (plain.length) add('warn','http:// 주소 '+plain.length+'개','GitHub Pages(https)에서는 차단될 수 있으니 https:// 로 바꾸세요.');
+  if (!rel.length && !ext.length) add('ok','외부 파일 의존성 없음 (단일 파일로 동작)');
+  add('info','파일 크기 '+kb(byteSize(html)));
+  run.static = {fail:fail, warn:warn};
+  return out;
+}
+function renderChecks(list){
+  var ul = $('checks'); ul.innerHTML = '';
+  list.forEach(function(c){
+    var li = document.createElement('li');
+    var label = {ok:'통과',warn:'권장',fail:'실패',info:'참고'}[c.lv];
+    li.innerHTML = '<span class="tag '+c.lv+'">'+label+'</span><span>'+esc(c.t)+(c.sub?'<span class="sub">'+esc(c.sub)+'</span>':'')+'</span>';
+    ul.appendChild(li);
+  });
+}
+
+/* ================= 구동 확인 실행 ================= */
+function runCheck(){
+  var html = $('code').value;
+  run.token = 'k' + Date.now() + Math.random().toString(36).slice(2,7);
+  run.errors = 0; run.warns = 0; run.loaded = false; run.ran = true; clearTimeout(run.timer);
+  updateCounters();
+  $('console').innerHTML = '<div class="empty">실행 로그가 여기에 표시됩니다.</div>';
+  renderChecks(staticCheck(html));
+  if (!html.trim()){ $('frame').srcdoc = ''; setVerdict('bad','코드가 비어 있습니다','HTML을 넣어 주세요'); return; }
+  setVerdict('warn','확인 중…','페이지를 실행하고 있습니다');
+  $('frame').srcdoc = inject(html, run.token);
+  run.timer = setTimeout(function(){
+    if (!run.loaded){ run.warns++; updateCounters(); logLine('warn','6초 안에 load 이벤트가 오지 않았습니다 (무한 로딩이거나 외부 자원 지연)'); setVerdict('warn','로드가 오래 걸려요','외부 자원이나 무한 반복을 확인해 주세요'); }
+  }, 6000);
+}
+$('run').onclick = runCheck;
+$('reload').onclick = runCheck;
+$('code').addEventListener('keydown', function(e){
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); runCheck(); }
+  if (e.key === 'Tab'){ e.preventDefault(); var t=e.target, s=t.selectionStart; t.value=t.value.slice(0,s)+'  '+t.value.slice(t.selectionEnd); t.selectionStart=t.selectionEnd=s+2; }
+});
+$('clr').onclick = function(){ $('console').innerHTML = '<div class="empty">아직 로그가 없습니다.</div>'; };
+$('openTab').onclick = function(){
+  var html = $('code').value; if(!html.trim()){ toast('코드를 먼저 넣어 주세요'); return; }
+  var url = URL.createObjectURL(new Blob([html],{type:'text/html;charset=utf-8'}));
+  window.open(url,'_blank'); setTimeout(function(){URL.revokeObjectURL(url)},60000);
+};
+$('dl').onclick = function(){
+  var html = $('code').value; if(!html.trim()){ toast('코드를 먼저 넣어 주세요'); return; }
+  downloadHtml($('title').value, html); toast('다운로드를 시작했어요');
+};
+$('title').addEventListener('input', function(){ $('winName').textContent = safeName($('title').value || 'untitled') + '.html'; });
+
+/* 화면 크기 */
+document.querySelectorAll('#seg button').forEach(function(b){
+  b.onclick = function(){
+    document.querySelectorAll('#seg button').forEach(function(x){x.classList.remove('on')}); b.classList.add('on');
+    var w = b.dataset.w; $('fw').style.width = (w === '100%') ? '100%' : w + 'px';
+    $('fw').className = 'frameWrap ' + b.dataset.mode;
+  };
+});
+
+/* 샘플 / 파일 */
+function setEditor(title, html){
+  $('code').value = html; $('title').value = title;
+  $('winName').textContent = safeName(title || 'untitled') + '.html';
+}
+document.querySelectorAll('[data-sample]').forEach(function(b){
+  b.onclick = function(){ var k = b.dataset.sample; setEditor({ok:'정상 예제',clock:'시계 예제',bad:'오류 예제'}[k], SAMPLES[k]); runCheck(); };
+});
+function readText(f){ return new Promise(function(res){ var r = new FileReader(); r.onload = function(){ res(r.result); }; r.readAsText(f); }); }
+function loadIntoEditor(f){
+  if(!f) return;
+  readText(f).then(function(t){ setEditor(f.name.replace(/\.html?$/i,''), t); runCheck(); toast('파일을 불러왔어요'); });
+}
+$('file').onchange = function(e){ loadIntoEditor(e.target.files[0]); e.target.value=''; };
+var ed = $('editor');
+['dragenter','dragover'].forEach(function(n){ ed.addEventListener(n,function(e){e.preventDefault(); ed.classList.add('drag')}) });
+['dragleave','drop'].forEach(function(n){ ed.addEventListener(n,function(e){e.preventDefault(); ed.classList.remove('drag')}) });
+ed.addEventListener('drop', function(e){ loadIntoEditor(e.dataTransfer.files[0]); });
+
+/* ================= 보관함 ================= */
+var files = [];
+
+function newId(){ return 'f' + Date.now() + Math.random().toString(36).slice(2,6); }
+
+function saveRecord(title, html, v){
+  var existing = files.filter(function(s){ return s.title === title; })[0];
+  var rec = {id: existing ? existing.id : newId(), title:title, html:html, at:Date.now(), size:byteSize(html), level:v.level, text:v.text};
+  return DB.put(rec).then(function(){ return !!existing; });
+}
+
+$('save').onclick = function(){
+  var html = $('code').value, title = safeName($('title').value);
+  if(!$('title').value.trim()){ toast('파일 이름을 입력해 주세요'); $('title').focus(); return; }
+  if(!html.trim()){ toast('코드를 먼저 넣어 주세요'); return; }
+  var v = run.ran ? currentVerdict() : {level:'idle', text:'미확인'};
+  saveRecord(title, html, v).then(function(over){
+    toast(over ? '같은 이름의 파일을 덮어썼어요' : '보관함에 저장했어요');
+    refreshLibrary();
+  }).catch(function(){ toast('저장 공간이 부족하거나 저장에 실패했어요'); });
+};
+
+function refreshLibrary(){
+  return DB.all().then(function(list){
+    files = list.sort(function(a,b){ return b.at - a.at; });
+    renderFiles();
+  });
+}
+
+function renderFiles(){
+  var box = $('files'); box.innerHTML = '';
+  var q = $('search').value.trim().toLowerCase();
+  var shown = files.filter(function(f){ return !q || f.title.toLowerCase().indexOf(q) !== -1; });
+  if (!shown.length){
+    box.innerHTML = '<div class="empty-box">' + (files.length ? '검색 결과가 없어요.' : '보관된 파일이 없어요. 코드를 확인한 뒤 “보관함에 저장”을 누르거나, 위 영역에 파일을 끌어다 놓아 보세요.') + '</div>';
+  }
+  shown.forEach(function(f){
+    var d = document.createElement('div'); d.className = 'file';
+    var cls = (f.level==='ok'||f.level==='warn'||f.level==='bad') ? f.level : '';
+    d.innerHTML =
+      '<div class="fmain"><b title="'+esc(f.title)+'.html">'+esc(f.title)+'.html</b><small>'+new Date(f.at).toLocaleString('ko-KR')+'  ·  '+kb(f.size || byteSize(f.html))+'</small></div>'+
+      '<span class="st '+cls+'">'+esc(f.text || '미확인')+'</span>';
+    var row = document.createElement('div'); row.className = 'acts';
+    function mk(label, cls, fn){ var b=document.createElement('button'); b.className='btn small '+(cls||''); b.textContent=label; b.onclick=fn; row.appendChild(b); }
+    mk('불러와 확인','primary',function(){ setEditor(f.title, f.html); runCheck(); $('check').scrollIntoView({behavior:'smooth'}); });
+    mk('다운로드','',function(){ downloadHtml(f.title, f.html); toast('다운로드를 시작했어요'); });
+    mk('삭제','danger',function(){ if(confirm('“'+f.title+'.html” 을(를) 삭제할까요?')){ DB.del(f.id).then(refreshLibrary).then(function(){ toast('삭제했어요'); }); } });
+    d.appendChild(row); box.appendChild(d);
+  });
+  var total = files.reduce(function(s,f){ return s + (f.size || byteSize(f.html)); }, 0);
+  $('libinfo').textContent = '파일 ' + files.length + '개 · 총 ' + kb(total) + ' · 저장 위치: 이 브라우저(' + DB.mode() + '). 브라우저 데이터를 지우면 함께 삭제되니 중요한 파일은 “전체 백업”으로 보관하세요.';
+}
+$('search').addEventListener('input', renderFiles);
+
+/* 파일 올려서 바로 보관 */
+function uploadMany(fileList){
+  var arr = [].slice.call(fileList).filter(function(f){ return /\.html?$/i.test(f.name); });
+  if (!arr.length){ toast('.html 파일만 올릴 수 있어요'); return; }
+  var chain = Promise.resolve(), n = 0;
+  arr.forEach(function(f){
+    chain = chain.then(function(){ return readText(f); }).then(function(t){
+      return DB.all().then(function(list){ files = list; return saveRecord(safeName(f.name), t, {level:'idle', text:'미확인'}); });
+    }).then(function(){ n++; });
+  });
+  chain.then(refreshLibrary).then(function(){ toast(n + '개 파일을 보관했어요'); }).catch(function(){ toast('저장에 실패했어요'); });
+}
+var drop = $('drop');
+drop.onclick = function(){ $('dropFile').click(); };
+$('dropFile').onchange = function(e){ uploadMany(e.target.files); e.target.value=''; };
+['dragenter','dragover'].forEach(function(n){ drop.addEventListener(n,function(e){e.preventDefault(); drop.classList.add('drag')}) });
+['dragleave','drop'].forEach(function(n){ drop.addEventListener(n,function(e){e.preventDefault(); drop.classList.remove('drag')}) });
+drop.addEventListener('drop', function(e){ uploadMany(e.dataTransfer.files); });
+
+/* 전체 백업 / 가져오기 */
+$('exportAll').onclick = function(){
+  if (!files.length){ toast('백업할 파일이 없어요'); return; }
+  var d = new Date(), p = function(n){ return String(n).padStart(2,'0'); };
+  var stamp = d.getFullYear()+p(d.getMonth()+1)+p(d.getDate());
+  saveBlob('html-check-backup-'+stamp+'.json', JSON.stringify({app:'htmlRunCheck', version:1, files:files}, null, 1), 'application/json');
+  toast('백업 파일을 만들었어요');
+};
+$('importFile').onchange = function(e){
+  var f = e.target.files[0]; e.target.value=''; if(!f) return;
+  readText(f).then(function(t){
+    var data; try { data = JSON.parse(t); } catch(err){ toast('올바른 백업 파일이 아니에요'); return; }
+    var list = data && data.app === 'htmlRunCheck' && Array.isArray(data.files) ? data.files : null;
+    if (!list){ toast('올바른 백업 파일이 아니에요'); return; }
+    var chain = Promise.resolve(), n = 0;
+    list.forEach(function(r){
+      if (!r || typeof r.title !== 'string' || typeof r.html !== 'string') return;
+      chain = chain.then(function(){
+        var same = files.filter(function(x){ return x.title === r.title; })[0];
+        return DB.put({id: same ? same.id : newId(), title:r.title, html:r.html, at:r.at || Date.now(), size:byteSize(r.html), level:r.level || 'idle', text:r.text || '미확인'});
+      }).then(function(){ n++; });
+    });
+    chain.then(refreshLibrary).then(function(){ toast(n + '개 파일을 가져왔어요'); });
+  });
+};
+
+/* ================= 시작 ================= */
+DB.open().then(function(){
+  /* 이전 버전(localStorage)에 저장해 둔 파일이 있으면 옮겨 옵니다 */
+  var old = []; try { old = JSON.parse(localStorage.getItem('htmlRunCheck.saved.v1') || '[]'); } catch(e){}
+  var chain = Promise.resolve();
+  old.forEach(function(o){
+    if (!o || !o.title || !o.html) return;
+    chain = chain.then(function(){ return DB.put({id:o.id || newId(), title:o.title, html:o.html, at:o.at || Date.now(), size:byteSize(o.html), level:o.level || 'idle', text:o.text || '미확인'}); });
+  });
+  return chain.then(function(){ if (old.length){ try { localStorage.removeItem('htmlRunCheck.saved.v1'); } catch(e){} } });
+}).then(refreshLibrary);
+
+/* 저장 공간이 지워지지 않도록 브라우저에 요청 (지원되는 경우) */
+try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch(e){}
+
+setEditor('정상 예제', SAMPLES.ok);
+runCheck();
+</script>
+</body>
+</html>
