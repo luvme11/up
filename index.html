@@ -40,8 +40,9 @@
   .navr{display:flex; align-items:center; gap:22px}
   .navr a{color:var(--muted); text-decoration:none; font-size:14px; font-weight:600}
   .navr a:hover{color:var(--text)}
-  .theme{border:1px solid var(--line); background:transparent; color:var(--text); border-radius:var(--r); padding:4px 11px; font-size:13px; font-weight:600; cursor:pointer}
-  .theme:hover{background:var(--surface2)}
+  .theme{width:34px; height:34px; display:grid; place-items:center; border:1px solid var(--line); background:transparent; color:var(--text); border-radius:var(--r); padding:0; cursor:pointer}
+  .theme:hover{background:var(--surface2); border-color:var(--muted)}
+  .theme svg{width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
 
   /* ---------- Intro ---------- */
   .intro{padding:30px 0 20px}
@@ -190,7 +191,7 @@
     <div class="logo">HTML 구동 확인</div>
     <nav class="navr">
       <a href="#check">확인하기</a><a href="#library">보관함</a><a href="#howto">구동 방법</a>
-      <button class="theme" id="theme" title="테마 전환">다크</button>
+      <button class="theme" id="theme" title="테마 전환" aria-label="테마 전환"></button>
     </nav>
   </div>
 </header>
@@ -306,7 +307,7 @@ var $ = function(id){ return document.getElementById(id); };
 (function(){
   var saved = null; try { saved = localStorage.getItem('htmlRunCheck.theme'); } catch(e){}
   var dark = saved ? saved === 'dark' : (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
-  function apply(){ document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light'); $('theme').textContent = dark ? '라이트' : '다크'; }
+  function apply(){ document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light'); $('theme').innerHTML = dark ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>' : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg>'; $('theme').title = dark ? '라이트 모드로' : '다크 모드로'; }
   apply();
   $('theme').onclick = function(){ dark = !dark; apply(); try{ localStorage.setItem('htmlRunCheck.theme', dark?'dark':'light'); }catch(e){} };
 })();
