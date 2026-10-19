@@ -4,9 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>HTML 구동 확인</title>
-<!-- 파비콘: 기본은 아래 내장 아이콘이에요. 내 이미지를 쓰려면 favicon.png 를 index.html 과 같은 폴더에 올리고,
-     아래 줄을 지운 뒤 <link rel="icon" href="favicon.png"> 로 바꾸세요. -->
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23161a18'/%3E%3Cpath d='M12 9.5v13l11-6.5z' fill='%23f6f7f5'/%3E%3C/svg%3E">
+<!-- 파비콘: 이미지가 아래 링크 안에 직접 들어 있어서 별도 파일 없이도 모두에게 보여요. -->
+<link rel="icon" id="favicon" type="image/png" href="data:image/png;base64,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">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
   :root{
@@ -46,6 +45,19 @@
   .theme{width:34px; height:34px; display:grid; place-items:center; border:1px solid var(--line); background:transparent; color:var(--text); border-radius:var(--r); padding:0; cursor:pointer}
   .theme:hover{background:var(--surface2); border-color:var(--muted)}
   .theme svg{width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
+
+
+  /* ---------- 관리자 ♡ ---------- */
+  .heart{width:34px; height:34px; display:grid; place-items:center; border:1px solid var(--line); background:transparent; color:var(--muted); border-radius:var(--r); padding:0; cursor:pointer; font-size:17px; line-height:1}
+  .heart:hover{background:var(--surface2); border-color:var(--muted); color:var(--text)}
+  .heart.on{color:#fff; background:var(--bad-fill); border-color:transparent}
+  .adminbadge{display:none; font-size:12px; font-weight:800; padding:3px 10px; border-radius:99px; border:1px solid var(--bad); color:var(--bad)}
+  body.admin .adminbadge{display:inline-block}
+  .adminpanel{display:none; margin-bottom:16px}
+  body.admin .adminpanel{display:block}
+  .favrow{display:flex; gap:14px; align-items:center; flex-wrap:wrap}
+  .favprev{width:48px; height:48px; border:1px solid var(--line); border-radius:var(--r); display:grid; place-items:center; background:var(--bg)}
+  .favprev img{width:32px; height:32px; object-fit:contain}
 
   /* ---------- Intro ---------- */
   .intro{padding:30px 0 20px}
@@ -195,6 +207,8 @@
     <nav class="navr">
       <a href="#check">확인하기</a><a href="#library">보관함</a><a href="#howto">구동 방법</a>
       <button class="theme" id="theme" title="테마 전환" aria-label="테마 전환"></button>
+      <span class="adminbadge">관리자</span>
+      <button class="heart" id="heart" title="관리자 모드" aria-label="관리자 모드">♡</button>
     </nav>
   </div>
 </header>
@@ -203,6 +217,18 @@
   <div class="intro">
     <h1>HTML이 제대로 돌아가는지 확인하세요</h1>
     <p>코드를 붙여넣거나 파일을 끌어다 놓으면 바로 실행하고 오류를 점검해요. 확인한 파일은 이 브라우저에 보관되고, 코드는 밖으로 전송되지 않아요.</p>
+  </div>
+
+  <div class="panel adminpanel" id="adminPanel">
+    <div class="ph"><h2>관리자 · 파비콘 설정</h2></div>
+    <div class="pb">
+      <div class="favrow">
+        <div class="favprev"><img id="favPrev" alt="파비콘 미리보기"></div>
+        <label class="btn small" style="margin:0">이미지 올리기<input type="file" id="favFile" accept="image/png,image/svg+xml,image/x-icon,image/jpeg,image/webp" hidden></label>
+        <button class="btn small" id="favReset">기본으로 되돌리기</button>
+      </div>
+      <div class="hint">여기서 올린 이미지는 이 브라우저에서만 임시로 바뀌어요. 모두에게 보이는 기본 아이콘은 코드 안에 들어 있는 이미지예요.</div>
+    </div>
   </div>
 
   <div class="verdict" id="verdict">
@@ -647,6 +673,37 @@ DB.open().then(function(){
 
 /* 저장 공간이 지워지지 않도록 브라우저에 요청 (지원되는 경우) */
 try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch(e){}
+
+
+/* ================= 파비콘 + 관리자 ================= */
+(function(){
+  var link = $('favicon'), DEF = link.getAttribute('href'), KEY = 'htmlRunCheck.favicon', ADM = 'htmlRunCheck.admin';
+  function setIcon(url, type){
+    var n = document.createElement('link'); n.rel='icon'; n.id='favicon'; if(type) n.type=type; n.href=url;
+    link.parentNode.replaceChild(n, link); link = n; $('favPrev').src = url;
+  }
+  function typeOf(u){ return /^data:image\/svg/.test(u)||/\.svg$/i.test(u) ? 'image/svg+xml' : /\.ico$/i.test(u) ? 'image/x-icon' : 'image/png'; }
+  var saved = null; try { saved = localStorage.getItem(KEY); } catch(e){}
+  if (saved){ setIcon(saved, typeOf(saved)); }
+  else {
+    $('favPrev').src = DEF;
+  }
+  $('favFile').onchange = function(e){
+    var f = e.target.files[0]; e.target.value=''; if(!f) return;
+    if (f.size > 500*1024){ toast('500KB 이하 이미지를 써 주세요'); return; }
+    var r = new FileReader();
+    r.onload = function(){ setIcon(r.result, f.type || typeOf(r.result)); try{ localStorage.setItem(KEY, r.result); }catch(err){} toast('파비콘을 적용했어요'); };
+    r.readAsDataURL(f);
+  };
+  $('favReset').onclick = function(){
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    setIcon(DEF, 'image/png'); toast('기본 아이콘으로 되돌렸어요');
+  };
+  function applyAdmin(on){ document.body.classList.toggle('admin', on); $('heart').classList.toggle('on', on); $('heart').textContent = on ? '♥' : '♡'; }
+  var on = false; try { on = localStorage.getItem(ADM) === '1'; } catch(e){}
+  applyAdmin(on);
+  $('heart').onclick = function(){ on = !on; applyAdmin(on); try{ localStorage.setItem(ADM, on?'1':'0'); }catch(e){} toast(on ? '관리자 모드 켜짐' : '관리자 모드 꺼짐'); };
+})();
 
 setEditor('정상 예제', SAMPLES.ok);
 runCheck();
